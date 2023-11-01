@@ -1,5 +1,5 @@
 /** Common config for message.ly */
-
+//place for centralized constans between files 
 // read .env files and make environmental variables
 
 require("dotenv").config();
