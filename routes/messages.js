@@ -1,5 +1,5 @@
 /** GET /:id - get detail of message.
- *
+ 
  * => {message: {id,
  *               body,
  *               sent_at,
