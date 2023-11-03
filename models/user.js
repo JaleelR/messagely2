@@ -16,36 +16,36 @@ class User {
 
   //You must add the column while creating before updatating it
   static async register({ username, password, first_name, last_name, phone }) {
-    
-     const hashpwd = await bcrypt.hash(password, BCRYPT_WORK_FACTOR );
+
+    const hashpwd = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
     const resp = await db.query(
       `INSERT INTO users ( username, password, first_name, last_name, phone, join_at, last_login_at)
        VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
        RETURNING username, password, first_name, last_name, phone`,
       [username, hashpwd, first_name, last_name, phone]);
-    
+
     return resp.rows[0];
-   }
+  }
 
   /** Authenticate: is this username/password valid? Returns boolean. */
 
   static async authenticate(username, password) {
-    
+
     const resp = await db.query(`SELECT password FROM users WHERE username = $1`
       , [username]);
-      const user = resp.rows[0];
+    const user = resp.rows[0];
     if (!user) {
       const err = new Error(`Username ${username} Not found `);
       err.status = 400;
       throw err;
     } else {
-            return await bcrypt.compare(password, user.password) 
+      return await bcrypt.compare(password, user.password)
     }
-      //compare password typed in with hash password
+    //compare password typed in with hash password
 
-    }
-    
-//you dont have to return anything when updating 
+  }
+
+  //you dont have to return anything when updating 
   /** Update last_login_at for user */
   static async updateLoginTimestamp(username) {
     const resp = await db.query(
@@ -55,7 +55,7 @@ class User {
     if (!resp.rows[0]) {
       const err = new Error(`Username ${username} Not found `);
       err.status = 404;
-      throw err; 
+      throw err;
     }
   }
 
@@ -95,7 +95,7 @@ class User {
     }
     return user;
   }
-   
+
 
   /** Return messages from this user.
    *
@@ -160,21 +160,21 @@ class User {
      m.read_at
      FROM messages AS m 
      JOIN users AS u ON m.from_username = u.username  
-    WHERE m.to_username = $1`,[username]);
+    WHERE m.to_username = $1`, [username]);
 
     return resp.rows.map(m => ({
-      id: m.id, 
+      id: m.id,
       from_user: {
-        username: m.from_username, 
-        first_name: m.first_name, 
-        last_name: m.last_name, 
+        username: m.from_username,
+        first_name: m.first_name,
+        last_name: m.last_name,
         phone: m.phone
       },
-      body: m.body, 
-      sent_at: m.sent_at, 
+      body: m.body,
+      sent_at: m.sent_at,
       read_at: m.read_at,
     }))
-  } 
+  }
 }
 
 

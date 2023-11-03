@@ -1,8 +1,5 @@
-\c messagely
-
-DROP TABLE IF EXISTS users CASCADE;
+\ c messagely DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS messages CASCADE;
-
 CREATE TABLE users (
     username text PRIMARY KEY,
     password text NOT NULL,
@@ -12,7 +9,6 @@ CREATE TABLE users (
     join_at timestamp without time zone NOT NULL,
     last_login_at timestamp with time zone
 );
-
 CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
     from_username text NOT NULL REFERENCES users,
@@ -21,6 +17,3 @@ CREATE TABLE messages (
     sent_at timestamp with time zone NOT NULL,
     read_at timestamp with time zone
 );
-
-
-

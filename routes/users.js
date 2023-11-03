@@ -4,7 +4,7 @@ const ExpressError = require("../expressError");
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = require("../config");
 const router = new express.Router();
-const { ensureLoggedIn } = require("../middleware/auth");
+const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 
 
 /** GET / - get list of users.
@@ -14,10 +14,11 @@ const { ensureLoggedIn } = require("../middleware/auth");
  **/
 router.get("/", ensureLoggedIn, async (req, res, next) => {
     try {
-        
+
         const users = await User.all();
         res.json({ users: users })
     } catch (e) {
+
         return next(e);
     }
 })
@@ -29,14 +30,14 @@ router.get("/", ensureLoggedIn, async (req, res, next) => {
  *
  **/
 
-router.get("/:username", ensureLoggedIn ,async (req, res, next) => {
+router.get("/:username", ensureCorrectUser, async (req, res, next) => {
     try {
         const { username } = req.params;
         const user = await User.get(username);
-        res.json({user: user})
-} catch (e) {
+        res.json({ user: user })
+    } catch (e) {
         return next(e);
-}
+    }
 })
 /** GET /:username/to - get messages to user
  *
@@ -47,14 +48,18 @@ router.get("/:username", ensureLoggedIn ,async (req, res, next) => {
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
-router.get("/:username/to", ensureLoggedIn, async (req, res, next) => {
+router.get("/:username/to", ensureCorrectUser, async (req, res, next) => {
     try {
         const { username } = req.params;
         const userInfo = await User.messagesTo(username);
-        const { id, body, sent_at, read_at, from_user } = userInfo;
+        const info = userInfo.map(u => {
+            const { id, body, sent_at, read_at, from_user } = u
+            return { id, body, sent_at, read_at, from_user }
+        })
         return res.json({
-            messages: id, body, sent_at, read_at, from_user
-      })  
+            messages: info
+
+        })
     } catch (e) {
         return next(e)
     }
@@ -70,18 +75,17 @@ router.get("/:username/to", ensureLoggedIn, async (req, res, next) => {
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
-router.get("/:username/from", ensureLoggedIn, async (req, res, next) => {
+router.get("/:username/from", ensureCorrectUser, async (req, res, next) => {
     try {
         const { username } = req.params;
         const userInfo = await User.messagesFrom(username);
-        const { id, body, sent_at, read_at, to_user } = userInfo;
+        const info = userInfo.map(u => {
+            const { id, body, sent_at, read_at, to_user } = u
+            return { id, body, sent_at, read_at, to_user }
+        })
         return res.json({
-            messages:
-            id,
-            body,
-            sent_at,
-            read_at,
-            to_user
+            messages: info
+
         })
     } catch (e) {
         return next(e)
