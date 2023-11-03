@@ -7,7 +7,7 @@ const { SECRET_KEY } = require("../config");
 
 function authenticateJWT(req, res, next) {
   try {
-    //send a _token to body when logging in?(check routes)
+    //send a _token to body 
        //get _token from body and assign _token to tokenfrombody 
     const tokenFromBody = req.body._token;
     //get payload from token, payload includes user info or db info 

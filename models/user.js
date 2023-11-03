@@ -2,7 +2,7 @@
 const db = require("../db");
 const bcrypt = require("bcrypt");
 
-const { BCRYPT_WORK_FACTOR, SECRET_KEY } = require("../config");
+const { BCRYPT_WORK_FACTOR } = require("../config");
 const ExpressError = require("../expressError");
 /** User of the site. */
 
@@ -33,9 +33,16 @@ class User {
     
     const resp = await db.query(`SELECT password FROM users WHERE username = $1`
       , [username]);
-    const user = resp.rows[0];
+      const user = resp.rows[0];
+    if (!user) {
+      const err = new Error(`Username ${username} Not found `);
+      err.status = 400;
+      throw err;
+    } else {
+            return await bcrypt.compare(password, user.password) 
+    }
       //compare password typed in with hash password
-      return await bcrypt.compare(password, user.password) 
+
     }
     
 //you dont have to return anything when updating 
